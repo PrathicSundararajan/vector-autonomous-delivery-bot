@@ -134,7 +134,7 @@ def run_particle_filter(robot):
             robot.behavior.say_text("Particle Filter has converged")
             time.sleep(3)
             #robot.motors.set_wheel_motors(0,0)
-    m_x, m_y, m_h = (6, 4, 0)
+    #m_x, m_y, m_h = (6, 4, 0)
     return m_x, m_y, m_h
 
     '''
