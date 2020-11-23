@@ -274,7 +274,6 @@ class RobotThread(threading.Thread):
             if path is None or path == []:
                 print('no path found')
                 break
-
             if (len(path) > next_node):
                 move_to = path[next_node]
                 robot_curr_x = path
@@ -331,57 +330,7 @@ class RobotThread(threading.Thread):
                 path = cmap.get_smooth_path()
                 next_node = 0
 
-            next_node += 1
-
-        """#instructor solution
-        RRT(cmap, cmap.get_start())
-        path = cmap.get_smooth_path()
-        marked = {}
-        update_cmap = False
-        next_node = 1
-        robot.behavior.set_head_angle(MIN_HEAD_ANGLE)
-        vector_pos = Node((startx, starty))
-        vector_angle = starth * .01745329252
-        while vector_pos not in cmap.get_goals():
-
-            #break if path is none or empty, indicating no path was found
-            if (path is None or len(path) == 0):
-                print("path is none")  # sanmesh
-                break
-
-            # Get the next node from the path
-            #drive the robot to next node in path. #First turn to the appropriate angle, and then move to it
-            #you can calculate the angle to turn through a trigonometric function
-            next_pos = path.pop(0)
-            print('x: {0:.2f}, y: {1:.2f}'.format(next_pos.x, next_pos.y))
-            angle = np.arctan2(next_pos.y - vector_pos.y,
-                                next_pos.x - vector_pos.x)
-            print("driving robot to next node in path")
-            if abs(angle - vector_angle) > 0.01:
-                robot.behavior.turn_in_place(
-                    anki_vector.util.Angle(radians=angle - vector_angle))
-            robot.behavior.drive_straight(distance_mm(
-                get_dist(vector_pos, next_pos)*25), speed_mmps(30))
-            # Update the current vector position (vector_pos and vector_angle) to be new node position and angle
-            vector_pos = next_pos
-            vector_angle = angle
-
-            # Set new start position for replanning with RRT
-            cmap.set_start(vector_pos)
-
-            #detect any visible obstacle cubes and update cmap
-            #print("detect_cube_and_update_cmap")
-            #update_cmap, goal_center, marked = detect_cube_and_update_cmap(
-            #    robot, marked, vector_pos, cmap)
-
-            #if we detected a cube, indicated by update_cmap, reset the cmap path, recalculate RRT, and get new paths
-            if update_cmap:
-                # Found the goal
-                cmap.reset_paths()
-                RRT(cmap, cmap.get_start())
-                path = cmap.get_smooth_path()
-        robot_curr_x, robot_curr_y, end_angle = vector_pos.x, vector_pos.y, vector_angle
-        """
+            next_node += 1       
 
         print('reached goal ' + str(robot_curr_x) + ', ' +
             str(robot_curr_y) + ', ' + str(end_angle))
@@ -655,3 +604,52 @@ if __name__ == '__main__':
     stopevent.set()
 
 """
+ """#instructor solution
+        RRT(cmap, cmap.get_start())
+        path = cmap.get_smooth_path()
+        marked = {}
+        update_cmap = False
+        next_node = 1
+        robot.behavior.set_head_angle(MIN_HEAD_ANGLE)
+        vector_pos = Node((startx, starty))
+        vector_angle = starth * .01745329252
+        while vector_pos not in cmap.get_goals():
+
+            #break if path is none or empty, indicating no path was found
+            if (path is None or len(path) == 0):
+                print("path is none")  # sanmesh
+                break
+
+            # Get the next node from the path
+            #drive the robot to next node in path. #First turn to the appropriate angle, and then move to it
+            #you can calculate the angle to turn through a trigonometric function
+            next_pos = path.pop(0)
+            print('x: {0:.2f}, y: {1:.2f}'.format(next_pos.x, next_pos.y))
+            angle = np.arctan2(next_pos.y - vector_pos.y,
+                                next_pos.x - vector_pos.x)
+            print("driving robot to next node in path")
+            if abs(angle - vector_angle) > 0.01:
+                robot.behavior.turn_in_place(
+                    anki_vector.util.Angle(radians=angle - vector_angle))
+            robot.behavior.drive_straight(distance_mm(
+                get_dist(vector_pos, next_pos)*25), speed_mmps(30))
+            # Update the current vector position (vector_pos and vector_angle) to be new node position and angle
+            vector_pos = next_pos
+            vector_angle = angle
+
+            # Set new start position for replanning with RRT
+            cmap.set_start(vector_pos)
+
+            #detect any visible obstacle cubes and update cmap
+            #print("detect_cube_and_update_cmap")
+            #update_cmap, goal_center, marked = detect_cube_and_update_cmap(
+            #    robot, marked, vector_pos, cmap)
+
+            #if we detected a cube, indicated by update_cmap, reset the cmap path, recalculate RRT, and get new paths
+            if update_cmap:
+                # Found the goal
+                cmap.reset_paths()
+                RRT(cmap, cmap.get_start())
+                path = cmap.get_smooth_path()
+        robot_curr_x, robot_curr_y, end_angle = vector_pos.x, vector_pos.y, vector_angle
+        """
