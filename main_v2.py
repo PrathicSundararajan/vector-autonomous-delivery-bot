@@ -47,14 +47,15 @@ from lab5rrt.rrt_vector_updated import node_generator, RRT
 
 global grid, pf_gui_1, pf, cmap, stopevent, scale_factor, max_pf_iterations
 global PICKUP_LOC, STORAGE_LOC, obstacle_nodes
-global pf_gui_1_show, rrt_gui_show, skip_pf
+global pf_gui_1_show, rrt_gui_show, skip_pf, sole_rotations
 # need to have one of these showing for script to run
 pf_gui_1_show = False
 rrt_gui_show = True
-skip_pf = True
+skip_pf = False
+sole_rotations = True
 max_pf_iterations = 20
 scale_factor = 25
-obstacle_nodes = [Node((240, 450)), Node((350,450)), Node((350,150)), Node((240, 150))]
+obstacle_nodes = [Node((240, 450)), Node((350,450)), Node((350,115)), Node((240, 115))]
 PICKUP_LOC = Node((8 * scale_factor, 7.5 * scale_factor))
 STORAGE_LOC = Node((20.5 * scale_factor, 11.5 * scale_factor))
 pf_map_filename = "./lab4pf/map_arena.json"
@@ -64,10 +65,22 @@ cmap = CozMap("./lab5rrt/maps/emptygrid.json", node_generator)
 
 
 def run_particle_filter(robot):
+    global grid, pf, pf_gui_1, skip_pf, sole_rotations
     if skip_pf:        
-        return 17.5, 9.5, 0
+        return 13, 9, 0 
+    if sole_rotations:
+        for i in range(4):
+            large_turn = robot.behavior.turn_in_place(degrees(45))
+            large_turn.result()
+            time.sleep(0.5)
+            large_turn = robot.behavior.turn_in_place(degrees(90))
+            large_turn.result()
+            time.sleep(0.5)
+            large_turn = robot.behavior.turn_in_place(degrees(45))
+            large_turn.result()   
+            time.sleep(0.5)
+        return 13, 9, 0 
     # map
-    global grid, pf, pf_gui_1
     print("Entering run pf method")
     pf = ParticleFilter(grid)
     print('running pf')
@@ -151,7 +164,7 @@ def rrt_move_to(robot, start_x, start_y, start_h, end_x, end_y):
                 turn_node.result()
                 #print('Had to turn')
         #print('Driving to next node in path')
-        straight_move = robot.behavior.drive_straight(distance_mm(get_dist(vector_pos, next_pos)),speed_mmps(210))
+        straight_move = robot.behavior.drive_straight(distance_mm(get_dist(vector_pos, next_pos)),speed_mmps(200))
         straight_move.result()
         vector_pos = next_pos
         vector_angle = angle
@@ -198,8 +211,7 @@ def run():
         ### PF Converging
         start_x, start_y, start_h = run_particle_filter(robot)
         start_x, start_y, start_h = (scale_factor * start_x,scale_factor* start_y,math.radians(start_h))
-        #start_x, start_y, start_h = (13 * scale_factor,9 * scale_factor,0)
-        cmap.add_obstacle(obstacle_nodes)
+        i = 0        
         ### Go to pick up zone
         # goal_x, goal_y = (8.5 * scale_factor,9.5 * scale_factor)         
         while True:
@@ -207,6 +219,9 @@ def run():
             end_pos, end_ang = rrt_move_to(robot, start_x,start_y,start_h,PICKUP_LOC.x,PICKUP_LOC.y)        
             end_pos, end_ang = rrt_move_to(robot, PICKUP_LOC.x,PICKUP_LOC.y,end_ang,PICKUP_LOC.x,PICKUP_LOC.y + 1)        
 
+            if i == 0: #once done localized and starting to pick stuff up
+                cmap.add_obstacle(obstacle_nodes)
+                i+=1 
             ### Pick up cube
             thing = robot.behavior.say_text("ready to begin delivery")
             thing.result()
@@ -217,13 +232,27 @@ def run():
             print('returned to previous pose')
 
             ### Go to drop off 
-            end_pos, end_ang = rrt_move_to(robot, end_pos.x, end_pos.y,end_ang,STORAGE_LOC.x,STORAGE_LOC.y)        
+            end_pos, end_ang = rrt_move_to(robot, end_pos.x, end_pos.y - 0.3 * scale_factor,end_ang,STORAGE_LOC.x,STORAGE_LOC.y)        
+            #end_pos, end_ang = rrt_move_to(robot, end_pos.x, end_pos.y,end_ang,STORAGE_LOC.x,STORAGE_LOC.y)        
             print('placing down now')        
         #drop = robot.behavior.set_lift_height(0.0)
         #drop.result()
             drop = robot.behavior.place_object_on_ground_here()
             drop.result()
-            start_x, start_y, start_h = (end_pos.x + 0.15 * scale_factor, end_pos.y - 1.25 * scale_factor, end_ang)
+            #prev_pose = saving_curr_pose(robot)
+            #move_to_prev_pose = robot.behavior.go_to_pose(prev_pose)
+            #move_to_prev_pose.result()
+            #start_x, start_y, start_h = (end_pos.x - 0.15 * scale_factor, end_pos.y - 1.20 * scale_factor, end_ang)
+            #start_x, start_y, start_h = (end_pos.x, end_pos.y, end_ang)
+            #cmap.clear_obstacles()
+            #end_pos, end_ang = rrt_move_to(robot, start_x,start_y,start_h, 13*25,9*25)  
+            #print("Expected_x: ", end_pos.x,"\nExpected_y: ", end_pos.y, "\nExpected Angle: ", end_ang)
+            #time.sleep(10000)
+            #dif is 1.5 inch y and .5 x
+            #start_x, start_y, start_h = (end_pos.x - 0.15 * scale_factor, end_pos.y - 1.20 * scale_factor, end_ang)
+            start_x, start_y, start_h = (end_pos.x - 0.7 * scale_factor, end_pos.y - 0.6 * scale_factor, end_ang)
+            #start_x, start_y, start_h = (end_pos.x, end_pos.y, end_ang)
+            
 
 
 class VectorThread(threading.Thread):
