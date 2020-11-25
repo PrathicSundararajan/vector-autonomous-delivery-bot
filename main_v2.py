@@ -66,6 +66,7 @@ cmap = CozMap("./lab5rrt/maps/emptygrid.json", node_generator)
 
 def run_particle_filter(robot):
     global grid, pf, pf_gui_1, skip_pf, sole_rotations
+    robot.behavior.set_head_angle(degrees(0))
     if skip_pf:        
         return 13, 9, 0 
     if sole_rotations:
@@ -84,7 +85,6 @@ def run_particle_filter(robot):
     print("Entering run pf method")
     pf = ParticleFilter(grid)
     print('running pf')
-    robot.behavior.set_head_angle(degrees(0))
     robot.camera.init_camera_feed()
     camera_settings = np.array([
         [296.54,      0, 160],    # fx   0  cx
@@ -187,8 +187,8 @@ def pick_up_cube(robot):
     flag = True
     curr = light_cube.is_visible
     while curr is False:
-        turn = robot.behavior.turn_in_place(degrees(45))
-        turn.result()        
+        #turn = robot.behavior.turn_in_place(degrees(45))
+        #turn.result()        
         time.sleep(2)
         curr = light_cube.is_visible    
     print('im out', curr)
@@ -232,7 +232,7 @@ def run():
             print('returned to previous pose')
 
             ### Go to drop off 
-            end_pos, end_ang = rrt_move_to(robot, end_pos.x, end_pos.y - 0.3 * scale_factor,end_ang,STORAGE_LOC.x,STORAGE_LOC.y)        
+            end_pos, end_ang = rrt_move_to(robot, end_pos.x, end_pos.y - 0.32 * scale_factor,end_ang,STORAGE_LOC.x,STORAGE_LOC.y)        
             #end_pos, end_ang = rrt_move_to(robot, end_pos.x, end_pos.y,end_ang,STORAGE_LOC.x,STORAGE_LOC.y)        
             print('placing down now')        
         #drop = robot.behavior.set_lift_height(0.0)
@@ -250,7 +250,7 @@ def run():
             #time.sleep(10000)
             #dif is 1.5 inch y and .5 x
             #start_x, start_y, start_h = (end_pos.x - 0.15 * scale_factor, end_pos.y - 1.20 * scale_factor, end_ang)
-            start_x, start_y, start_h = (end_pos.x - 0.7 * scale_factor, end_pos.y - 0.6 * scale_factor, end_ang)
+            start_x, start_y, start_h = (end_pos.x - 0.65 * scale_factor, end_pos.y - 0.9 * scale_factor, end_ang)
             #start_x, start_y, start_h = (end_pos.x, end_pos.y, end_ang)
             
 

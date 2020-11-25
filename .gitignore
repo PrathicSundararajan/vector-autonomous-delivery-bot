@@ -1,5 +1,6 @@
+__pycache__
 *.mov
+*.mp4
 .DS_Store
 .idea/
 *.zip
-*.mp4
